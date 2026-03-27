@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarSnipe — Snipe deals before anyone else</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0d;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.12);
+  --accent: #ff6b2b;
+  --accent2: #ff2b6b;
+  --accent-dim: rgba(255,107,43,0.12);
+  --grad: linear-gradient(90deg, #ff6b2b, #ff2b6b);
+  --grad-diag: linear-gradient(135deg, #ff6b2b, #ff2b6b);
+  --red: #ff3c2f;
+  --green: #4dff91;
+  --text: #f0f0f0;
+  --muted: #5a5a58;
+  --muted2: #2a2a2a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  padding: 20px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.4s, border-color 0.4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled {
+  background: rgba(13,13,13,0.93);
+  backdrop-filter: blur(16px);
+  border-color: var(--border);
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px; letter-spacing: 0.06em;
+  color: var(--text); text-decoration: none;
+}
+.logo span {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nav-right { display: flex; align-items: center; gap: 32px; }
+.nav-link {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--text); }
+.nav-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #fff; background: var(--grad);
+  border: none; padding: 10px 22px; cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.nav-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  padding: 140px 48px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(255,107,43,0.08) 0%, rgba(255,43,107,0.04) 50%, transparent 70%);
+  top: 5%; left: -15%;
+  pointer-events: none;
+}
+
+.hero-left { position: relative; z-index: 2; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 32px;
+  opacity: 0; animation: fadeUp 0.7s 0.1s forwards;
+}
+.hero-eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #ff6b2b;
+  animation: blink 2s ease-in-out infinite;
+  flex-shrink: 0;
+  -webkit-text-fill-color: initial;
+}
+
+.hero-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(64px, 8vw, 112px);
+  line-height: 0.92; letter-spacing: 0.01em;
+  margin-bottom: 28px;
+  opacity: 0; animation: fadeUp 0.7s 0.25s forwards;
+}
+.hero-headline .line-ghost {
+  display: block;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+  color: transparent;
+}
+.hero-headline .line-accent {
+  display: block;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-body {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 20px; line-height: 1.65;
+  color: #888; max-width: 420px;
+  margin-bottom: 44px;
+  opacity: 0; animation: fadeUp 0.7s 0.4s forwards;
+}
+.hero-body strong { color: var(--text); font-style: normal; font-family: 'Instrument Sans', sans-serif; font-weight: 500; }
+
+.hero-form {
+  display: flex; gap: 0; max-width: 460px;
+  opacity: 0; animation: fadeUp 0.7s 0.55s forwards;
+}
+.hero-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border2); border-right: none;
+  padding: 15px 18px;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 15px; color: var(--text); outline: none;
+  transition: border-color 0.2s;
+}
+.hero-input::placeholder { color: var(--muted); }
+.hero-input:focus { border-color: rgba(255,107,43,0.5); }
+.hero-btn {
+  background: var(--grad); border: none;
+  padding: 15px 28px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: #fff; cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.hero-btn:hover { opacity: 0.85; }
+
+.hero-meta {
+  margin-top: 20px; display: flex; align-items: center; gap: 24px;
+  font-family: 'DM Mono', monospace; font-size: 11px;
+  color: var(--muted); letter-spacing: 0.08em;
+  opacity: 0; animation: fadeUp 0.7s 0.7s forwards;
+}
+.hero-meta-count {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.success-state {
+  display: none;
+  font-family: 'DM Mono', monospace; font-size: 13px;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  padding: 16px 0; letter-spacing: 0.06em;
+}
+
+/* ── HERO RIGHT: Live feed ── */
+.hero-right {
+  position: relative; z-index: 2;
+  opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+}
+
+.feed-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.feed-stack {
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.feed-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 16px;
+  align-items: start;
+  transition: border-color 0.3s, background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.feed-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 60%, rgba(255,107,43,0.04));
+  opacity: 0; transition: opacity 0.3s;
+}
+.feed-card:hover { background: var(--surface2); }
+.feed-card:hover::after { opacity: 1; }
+.feed-card.hot { border-left-color: #4dff91; }
+.feed-card.warm { border-left-color: #ffd93d; }
+.feed-card.cold { border-left-color: #ff4d4d; }
+
+.feed-card-source {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 5px;
+}
+.feed-card-title {
+  font-size: 14px; font-weight: 500;
+  color: var(--text); line-height: 1.3;
+}
+.feed-card-meta {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--muted);
+  margin-top: 4px;
+}
+.feed-card-score {
+  text-align: right;
+}
+.score-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px; line-height: 1;
+  color: #4dff91;
+  -webkit-text-fill-color: #4dff91;
+}
+.feed-card.warm .score-num {
+  color: #ffd93d;
+  -webkit-text-fill-color: #ffd93d;
+}
+.feed-card.cold .score-num {
+  color: #ff4d4d;
+  -webkit-text-fill-color: #ff4d4d;
+}
+.score-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.deal-badge {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.08em;
+  padding: 3px 8px; margin-top: 6px;
+  background: rgba(77,255,145,0.1);
+  color: #4dff91; border: 1px solid rgba(77,255,145,0.25);
+}
+.feed-card.warm .deal-badge {
+  background: rgba(255,217,61,0.1);
+  color: #ffd93d; border-color: rgba(255,217,61,0.25);
+}
+.feed-card.cold .deal-badge {
+  background: rgba(255,77,77,0.1);
+  color: #ff4d4d; border-color: rgba(255,77,77,0.25);
+}
+
+/* new listing animation */
+@keyframes newCard {
+  from { opacity: 0; transform: translateY(-8px); background: rgba(255,107,43,0.06); }
+  to { opacity: 1; transform: translateY(0); background: var(--surface); }
+}
+.feed-card.new-item { animation: newCard 0.5s ease forwards; }
+
+/* ── TICKER ── */
+.ticker-wrap {
+  background: var(--grad); overflow: hidden; padding: 12px 0;
+}
+.ticker {
+  display: flex; animation: ticker 30s linear infinite; white-space: nowrap;
+}
+.ticker-item {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: #fff; padding: 0 40px; flex-shrink: 0;
+}
+.ticker-sep { opacity: 0.4; margin-right: 8px; }
+
+/* ── ORIGIN STORY ── */
+.origin {
+  padding: 120px 48px;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 80px;
+  max-width: 1200px; margin: 0 auto;
+  align-items: start;
+}
+.origin-left { position: sticky; top: 120px; }
+.origin-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 24px;
+  display: flex; align-items: center; gap: 10px;
+}
+.origin-tag::before { content: ''; width: 20px; height: 1px; background: var(--muted2); }
+.origin-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 56px; line-height: 0.95;
+  color: var(--text);
+}
+.origin-title em {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: normal; display: block;
+}
+
+.origin-right {}
+.origin-note {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--accent);
+  padding: 40px 44px;
+  margin-bottom: 2px;
+  position: relative;
+}
+.note-corner {
+  position: absolute; top: 16px; right: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.origin-text {
+  font-family: 'Instrument Serif', serif;
+  font-size: 20px; line-height: 1.75;
+  color: #999;
+}
+.origin-text strong { color: var(--text); font-family: 'Instrument Sans', sans-serif; font-style: normal; font-weight: 500; }
+.origin-text em {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: italic;
+}
+
+.origin-stat-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px; margin-top: 2px;
+}
+.origin-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 28px 32px;
+}
+.stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px; line-height: 1;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── PAIN ── */
+.pain { padding: 0 48px 120px; max-width: 1200px; margin: 0 auto; }
+.pain-intro {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 6vw, 80px);
+  line-height: 0.95; margin-bottom: 2px;
+  color: var(--text);
+}
+.pain-intro .struck {
+  position: relative; color: var(--muted2);
+}
+.pain-intro .struck::after {
+  content: '';
+  position: absolute; left: 0; right: 0;
+  top: 50%; height: 3px;
+  background: var(--grad);
+  transform: rotate(-1deg);
+}
+
+.pain-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px; margin-top: 2px;
+}
+.pain-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 36px 32px;
+  transition: background 0.25s;
+}
+.pain-card:hover { background: var(--surface2); }
+.pain-card-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em;
+  color: var(--muted); margin-bottom: 20px;
+}
+.pain-card-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px; letter-spacing: 0.02em;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px; line-height: 1;
+}
+.pain-card-body {
+  font-size: 14px; line-height: 1.7; color: #777; margin-bottom: 20px;
+}
+.pain-quote {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 13px; line-height: 1.65;
+  color: var(--muted);
+  border-left: 2px solid var(--muted2);
+  padding-left: 14px;
+}
+
+/* ── HOW ── */
+.how {
+  padding: 120px 48px;
+  background: var(--surface);
+  position: relative; overflow: hidden;
+}
+.how-inner { max-width: 1200px; margin: 0 auto; }
+.how-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 6vw, 80px);
+  line-height: 0.95; margin-bottom: 60px;
+}
+.how-headline em {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-style: normal;
+}
+
+.steps {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.step {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--muted2);
+  padding: 36px 28px;
+  transition: border-top-color 0.3s;
+  position: relative;
+}
+.step:hover { border-top-color: #ff6b2b; }
+.step:hover::before {
+  content: '';
+  position: absolute; top: -2px; left: 0; right: 0; height: 2px;
+  background: var(--grad);
+}
+.step-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 24px;
+}
+.step-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px; line-height: 1; color: var(--text); margin-bottom: 12px;
+}
+.step-body { font-size: 13px; line-height: 1.7; color: #777; }
+
+/* ── PLATFORMS ── */
+.platforms { padding: 80px 48px; max-width: 1200px; margin: 0 auto; }
+.platforms-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 36px; text-align: center;
+}
+.platform-list {
+  display: flex; justify-content: center; align-items: center;
+  gap: 0; flex-wrap: wrap;
+  border: 1px solid var(--border);
+}
+.platform-item {
+  flex: 1; min-width: 120px;
+  padding: 28px 24px; text-align: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 0.06em;
+  color: var(--muted2);
+  border-right: 1px solid var(--border);
+  transition: color 0.2s, background 0.2s;
+}
+.platform-item:last-child { border-right: none; }
+.platform-item:hover { background: var(--surface); color: #ff6b2b; }
+.platform-item.live { color: #555; }
+.platform-tag {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted2); margin-top: 4px;
+}
+.platform-item.live .platform-tag { color: #4dff91; }
+
+/* ── PRICING ── */
+.pricing { padding: 120px 48px; }
+.pricing-inner { max-width: 900px; margin: 0 auto; }
+.pricing-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 6vw, 80px);
+  line-height: 0.95; margin-bottom: 8px;
+}
+.pricing-sub {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic; font-size: 18px;
+  color: var(--muted); margin-bottom: 56px;
+}
+
+.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.plan {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 44px 40px; position: relative;
+}
+.plan.featured {
+  background: var(--surface2);
+  border-color: transparent;
+  background-clip: padding-box;
+  outline: 1px solid rgba(255,107,43,0.5);
+  outline-offset: -1px;
+}
+.plan.featured::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--grad);
+}
+.plan-badge {
+  position: absolute; top: -1px; right: 28px;
+  background: var(--grad); color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 5px 12px;
+}
+.plan-tier {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 20px;
+}
+.plan-price {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 80px; line-height: 1; color: var(--text); margin-bottom: 4px;
+}
+.plan-price sup { font-size: 36px; vertical-align: top; margin-top: 18px; display: inline-block; }
+.plan-cadence {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--muted); margin-bottom: 36px; letter-spacing: 0.08em;
+}
+.plan-list { list-style: none; display: flex; flex-direction: column; gap: 13px; }
+.plan-list li {
+  font-size: 14px; color: #888;
+  display: flex; align-items: flex-start; gap: 12px; line-height: 1.5;
+}
+.plan-check {
+  width: 16px; height: 16px; min-width: 16px;
+  margin-top: 2px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--muted2);
+}
+.plan.featured .plan-check {
+  background: var(--grad); border-color: #ff6b2b;
+}
+.plan.featured .plan-check::after {
+  content: '';
+  width: 8px; height: 5px;
+  border-left: 1.5px solid var(--bg); border-bottom: 1.5px solid var(--bg);
+  transform: rotate(-45deg) translateY(-1px);
+  display: block;
+}
+
+/* ── CTA ── */
+.cta-section {
+  padding: 140px 48px;
+  text-align: center; position: relative; overflow: hidden;
+  background: var(--surface);
+}
+.cta-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(255,107,43,0.06) 0%, rgba(255,43,107,0.03) 50%, transparent 70%);
+  pointer-events: none;
+}
+.cta-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.cta-headline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(60px, 9vw, 120px);
+  line-height: 0.9; margin-bottom: 20px; position: relative;
+}
+.cta-headline .ghost {
+  -webkit-text-stroke: 1px rgba(255,255,255,0.15);
+  color: transparent;
+}
+.cta-sub {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic; font-size: 20px;
+  color: #777; max-width: 420px; margin: 0 auto 44px; line-height: 1.65;
+}
+.cta-form {
+  display: flex; justify-content: center;
+  max-width: 460px; margin: 0 auto; position: relative;
+}
+
+/* ── FOOTER ── */
+footer {
+  padding: 36px 48px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-note {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--muted); letter-spacing: 0.08em;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+}
+@keyframes ticker {
+  from { transform: translateX(0); } to { transform: translateX(-50%); }
+}
+
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+@media (max-width: 960px) {
+  nav { padding: 18px 24px; }
+  .hero { grid-template-columns: 1fr; padding: 120px 24px 60px; gap: 48px; }
+  .origin { grid-template-columns: 1fr; gap: 40px; padding: 80px 24px; }
+  .origin-left { position: static; }
+  .pain { padding: 0 24px 80px; }
+  .pain-grid, .steps { grid-template-columns: 1fr; }
+  .how { padding: 80px 24px; }
+  .plans { grid-template-columns: 1fr; }
+  .pricing, .platforms, .cta-section { padding: 80px 24px; }
+  .origin-stat-row { grid-template-columns: 1fr; }
+  .platform-list { flex-direction: column; }
+  .platform-item { border-right: none; border-bottom: 1px solid var(--border); }
+  footer { flex-direction: column; gap: 12px; padding: 28px 24px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#" class="logo">Car<span>Snipe</span></a>
+  <div class="nav-right">
+    <a href="#how" class="nav-link">How it works</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <button class="nav-btn" onclick="document.getElementById('hero-email').focus()">Get early access</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot"></span>
+      Real-time car deal alerts
+    </div>
+
+    <h1 class="hero-headline">
+      Good deals<br>
+      <span class="line-ghost">disappear</span>
+      <span class="line-accent">in minutes.</span>
+    </h1>
+
+    <p class="hero-body">
+      CarSnipe watches <strong>every major platform 24/7</strong> — Craigslist, Facebook Marketplace, CarGurus and more. The second a deal drops in your area, you get a text and email. <em>Before anyone else sees it.</em>
+    </p>
+
+    <form class="hero-form" onsubmit="handleSubmit(event,'hero')">
+      <input class="hero-input" type="email" id="hero-email" placeholder="your@email.com" required style="flex:2">
+      <input class="hero-input" type="text" id="hero-zip" placeholder="ZIP" maxlength="5" style="flex:0 0 80px;border-left:1px solid rgba(255,255,255,0.12);border-right:none">
+      <button class="hero-btn" type="submit">Join waitlist</button>
+    </form>
+    <div class="success-state" id="hero-success">You're in. We'll text you when we launch.</div>
+
+    <div class="hero-meta">
+      <span><span class="hero-meta-count" id="counter">247</span> on the waitlist</span>
+      <span>·</span>
+      <span id="location-tag" style="color:#ff6b2b">Detecting your area...</span>
+      <span>·</span>
+      <span>No spam</span>
+    </div>
+  </div>
+
+  <!-- Live deal feed -->
+  <div class="hero-right">
+    <div class="feed-label">
+      <span class="live-dot"></span>
+      Live deals dropping now
+    </div>
+    <div class="feed-stack" id="feedStack">
+      <div class="feed-card hot" id="fc1">
+        <div>
+          <div class="feed-card-source" data-platform="Craigslist">Craigslist · <span class="city-tag">your area</span></div>
+          <div class="feed-card-title">2019 VW GTI SE — DSG, 62k mi</div>
+          <div class="feed-card-meta">Listed $21,500 · KBB $24,700</div>
+          <span class="deal-badge">$3,200 below market</span>
+        </div>
+        <div class="feed-card-score"><div class="score-num">9.1</div><div class="score-label">deal score</div></div>
+      </div>
+      <div class="feed-card warm">
+        <div>
+          <div class="feed-card-source" data-platform="Facebook Marketplace">Facebook · <span class="city-tag">your area</span></div>
+          <div class="feed-card-title">2021 Honda Civic Sport — 41k mi</div>
+          <div class="feed-card-meta">Listed $19,900 · KBB $21,700</div>
+          <span class="deal-badge">$1,800 below market</span>
+        </div>
+        <div class="feed-card-score"><div class="score-num">7.4</div><div class="score-label">deal score</div></div>
+      </div>
+      <div class="feed-card hot">
+        <div>
+          <div class="feed-card-source" data-platform="CarGurus">CarGurus · <span class="city-tag">your area</span></div>
+          <div class="feed-card-title">2018 Subaru WRX — 78k mi, clean</div>
+          <div class="feed-card-meta">Listed $19,200 · KBB $21,800</div>
+          <span class="deal-badge">$2,600 below market</span>
+        </div>
+        <div class="feed-card-score"><div class="score-num">8.7</div><div class="score-label">deal score</div></div>
+      </div>
+      <div class="feed-card cold">
+        <div>
+          <div class="feed-card-source" data-platform="AutoTrader">AutoTrader · <span class="city-tag">your area</span></div>
+          <div class="feed-card-title">2020 Toyota Camry SE — 54k mi</div>
+          <div class="feed-card-meta">Listed $23,500 · KBB $22,900</div>
+          <span class="deal-badge">Overpriced — skip</span>
+        </div>
+        <div class="feed-card-score"><div class="score-num">3.2</div><div class="score-label">deal score</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item"><span class="ticker-sep">//</span> Stop refreshing Marketplace</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> Get the deal before anyone else</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> AI deal scoring on every listing</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> SMS + email the moment it drops</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> Craigslist · Facebook · CarGurus · AutoTrader</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> Stop refreshing Marketplace</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> Get the deal before anyone else</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> AI deal scoring on every listing</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> SMS + email the moment it drops</span>
+    <span class="ticker-item"><span class="ticker-sep">//</span> Craigslist · Facebook · CarGurus · AutoTrader</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section class="origin" style="padding: 80px 48px;">
+  <div class="origin-left reveal">
+    <div class="origin-tag">The numbers</div>
+    <div class="origin-title">Why the<br><em>old way fails.</em></div>
+  </div>
+  <div class="origin-right">
+    <div class="origin-stat-row reveal" style="margin-top:0">
+      <div class="origin-stat">
+        <div class="stat-num">4min</div>
+        <div class="stat-label">Average time a good deal lasts on Marketplace before it's gone</div>
+      </div>
+      <div class="origin-stat">
+        <div class="stat-num">50%</div>
+        <div class="stat-label">Of platform alerts arrive too late — deal already sold</div>
+      </div>
+      <div class="origin-stat">
+        <div class="stat-num">6/10</div>
+        <div class="stat-label">Listings people contact that are already gone</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN -->
+<section class="pain">
+  <div class="pain-intro reveal">
+    The current<br>
+    <span class="struck">experience</span><br>
+    is broken.
+  </div>
+  <div class="pain-grid">
+    <div class="pain-card reveal reveal-delay-1">
+      <div class="pain-card-num">01 — Stale listings</div>
+      <div class="pain-card-title">It sold 3 days ago.</div>
+      <div class="pain-card-body">You message the seller, they don't respond. You drive over. It's gone. The listing just never came down.</div>
+      <div class="pain-quote">"Out of 6 cars I inquired about, 4 were already sold — still showing as available."</div>
+    </div>
+    <div class="pain-card reveal reveal-delay-2">
+      <div class="pain-card-num">02 — Fake pricing</div>
+      <div class="pain-card-title">CarGurus says $19k. Dealer says $38k.</div>
+      <div class="pain-card-body">Listings are priced to get clicks, not to sell. By the time you find out the real number you've already wasted an afternoon.</div>
+      <div class="pain-quote">"Most dealers on here don't seem fully transparent. Lots of prices are just bait."</div>
+    </div>
+    <div class="pain-card reveal reveal-delay-3">
+      <div class="pain-card-num">03 — Broken alerts</div>
+      <div class="pain-card-title">The alert came. 6 hours later.</div>
+      <div class="pain-card-body">Every platform has a search alert feature. None of them work fast enough. Real deals are gone before the notification hits your phone.</div>
+      <div class="pain-quote">"Alerts only work about 50% of the time. I just end up checking it constantly myself."</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="how-headline reveal">Set it up.<br><em>We do the rest.</em></div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01 —</div>
+        <div class="step-title">Tell us what you want</div>
+        <div class="step-body">Make, model, year, max price, ZIP. Takes 60 seconds. Set as many searches as you want.</div>
+      </div>
+      <div class="step reveal reveal-delay-1">
+        <div class="step-num">02 —</div>
+        <div class="step-title">We watch everything</div>
+        <div class="step-body">Craigslist, Facebook Marketplace, CarGurus, AutoTrader — monitored every few minutes, 24/7.</div>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-num">03 —</div>
+        <div class="step-title">AI scores the deal</div>
+        <div class="step-body">Every new listing gets scored against real market data. Red flags in the description get flagged automatically.</div>
+      </div>
+      <div class="step reveal reveal-delay-3">
+        <div class="step-num">04 —</div>
+        <div class="step-title">You snipe it first</div>
+        <div class="step-body">Text + email the moment it drops. You're first in line before the listing hits anyone else's feed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORMS -->
+<section class="platforms">
+  <div class="platforms-label reveal">Platforms we monitor</div>
+  <div class="platform-list reveal">
+    <div class="platform-item live">Craigslist<span class="platform-tag">live</span></div>
+    <div class="platform-item live">Facebook<span class="platform-tag">live</span></div>
+    <div class="platform-item live">CarGurus<span class="platform-tag">live</span></div>
+    <div class="platform-item">AutoTrader<span class="platform-tag">coming soon</span></div>
+    <div class="platform-item">Cars.com<span class="platform-tag">coming soon</span></div>
+    <div class="platform-item">eBay Motors<span class="platform-tag">coming soon</span></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-headline reveal">Simple pricing.</div>
+    <div class="pricing-sub reveal">No confusing tiers. No gotchas. Just pay when it's worth it.</div>
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="plan-tier">Free — forever</div>
+        <div class="plan-price"><sup>$</sup>0</div>
+        <div class="plan-cadence">no card required</div>
+        <ul class="plan-list">
+          <li><span class="plan-check"></span>1 active search alert</li>
+          <li><span class="plan-check"></span>Email notifications</li>
+          <li><span class="plan-check"></span>Craigslist + CarGurus</li>
+          <li><span class="plan-check"></span>AI deal score on every listing</li>
+        </ul>
+      </div>
+      <div class="plan featured reveal reveal-delay-1">
+        <div class="plan-badge">Most popular</div>
+        <div class="plan-tier">Pro</div>
+        <div class="plan-price"><sup>$</sup>12</div>
+        <div class="plan-cadence">per month · cancel any time</div>
+        <ul class="plan-list">
+          <li><span class="plan-check"></span>Unlimited search alerts</li>
+          <li><span class="plan-check"></span>SMS + email notifications</li>
+          <li><span class="plan-check"></span>All platforms incl. Facebook Marketplace</li>
+          <li><span class="plan-check"></span>AI red flag detection on listings</li>
+          <li><span class="plan-check"></span>AI-drafted first message to sellers</li>
+          <li><span class="plan-check"></span>Price history on every listing</li>
+          <li><span class="plan-check"></span>30 days free for early access members</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-glow"></div>
+  <div class="cta-eyebrow reveal">
+    <span class="hero-eyebrow-dot"></span>
+    Stop refreshing. Start sniping.
+  </div>
+  <h2 class="cta-headline reveal">
+    The deal<br>
+    <span class="ghost">won't wait</span><br>
+    for you.
+  </h2>
+  <p class="cta-sub reveal">Join the waitlist. Get 30 days of Pro free when we launch.</p>
+  <form class="cta-form reveal" onsubmit="handleSubmit(event,'cta')">
+    <input class="hero-input" type="email" id="cta-email" placeholder="your@email.com" required>
+    <button class="hero-btn" type="submit">Join waitlist</button>
+  </form>
+  <div class="success-state" id="cta-success">You're in. We'll hit you when we launch.</div>
+</section>
+
+<footer>
+  <a href="#" class="logo">Car<span>Snipe</span></a>
+  <p class="footer-note">© 2025 CarSnipe &nbsp;·&nbsp; Never miss a deal again &nbsp;·&nbsp; Chicagoland & nationwide</p>
+</footer>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', scrollY > 40);
+});
+
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Counter
+let count = 247;
+setInterval(() => {
+  if (Math.random() > 0.65) {
+    count += Math.floor(Math.random() * 2) + 1;
+    document.getElementById('counter').textContent = count;
+  }
+}, 5000);
+
+// Form submit
+function handleSubmit(e, id) {
+  e.preventDefault();
+  e.target.style.display = 'none';
+  document.getElementById(id + '-success').style.display = 'block';
+  count++; document.getElementById('counter').textContent = count;
+}
+
+// ── GEOLOCATION + LOCATION-AWARE FEED ──
+let userCity = 'your area';
+let userZip = '';
+
+// Cities to show nearby — keyed by rough region
+const regionCities = {
+  default: ['nearby','your area','local area'],
+};
+
+function setLocationDisplay(city, zip) {
+  userCity = city;
+  userZip = zip || userZip;
+  // Update feed card city tags
+  document.querySelectorAll('.city-tag').forEach(el => el.textContent = city);
+  // Update location tag in meta
+  const lt = document.getElementById('location-tag');
+  if (lt) lt.textContent = 'Showing deals near ' + city;
+  // Pre-fill ZIP if detected
+  const zipEl = document.getElementById('hero-zip');
+  if (zipEl && !zipEl.value && zip) zipEl.value = zip;
+}
+
+// Try browser geolocation → reverse geocode with free API
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(pos => {
+    const {latitude: lat, longitude: lon} = pos.coords;
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`)
+      .then(r => r.json())
+      .then(data => {
+        const city = data.address.city || data.address.town || data.address.county || 'your area';
+        const zip  = data.address.postcode || '';
+        setLocationDisplay(city, zip);
+      })
+      .catch(() => setLocationDisplay('your area', ''));
+  }, () => {
+    // Denied — just leave as "your area"
+    const lt = document.getElementById('location-tag');
+    if (lt) lt.textContent = 'Free to join · No spam';
+  });
+} else {
+  const lt = document.getElementById('location-tag');
+  if (lt) lt.textContent = 'Free to join · No spam';
+}
+
+// Also update location when user types their ZIP
+document.getElementById('hero-zip').addEventListener('input', function() {
+  if (this.value.length === 5) {
+    fetch(`https://nominatim.openstreetmap.org/search?postalcode=${this.value}&country=US&format=json&limit=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data[0]) {
+          const name = data[0].display_name.split(',')[0];
+          setLocationDisplay(name, this.value);
+        }
+      }).catch(() => {});
+  }
+});
+
+// ── EXPANDED DEAL POOL (20 cars, diverse makes) ──
+const platforms = ['Craigslist','Facebook','CarGurus','AutoTrader','Cars.com'];
+const allDeals = [
+  { title:'2019 VW GTI SE — DSG, 62k mi',        meta:'Listed $21,500 · KBB $24,700', badge:'$3,200 below market', score:'9.1', cls:'hot' },
+  { title:'2021 Honda Civic Sport — 41k mi',      meta:'Listed $19,900 · KBB $21,700', badge:'$1,800 below market', score:'7.4', cls:'warm' },
+  { title:'2018 Subaru WRX — 78k mi, clean',      meta:'Listed $19,200 · KBB $21,800', badge:'$2,600 below market', score:'8.7', cls:'hot' },
+  { title:'2020 Toyota Camry SE — 54k mi',        meta:'Listed $23,500 · KBB $22,900', badge:'Overpriced — skip',   score:'3.2', cls:'cold' },
+  { title:'2017 Ford Focus ST — 55k mi',          meta:'Listed $16,800 · KBB $19,200', badge:'$2,400 below market', score:'8.3', cls:'hot' },
+  { title:'2022 Mazda3 Hatchback — 28k mi',       meta:'Listed $23,100 · KBB $24,500', badge:'$1,400 below market', score:'6.8', cls:'warm' },
+  { title:'2016 Honda Accord Sport — 89k mi',     meta:'Listed $14,200 · KBB $15,800', badge:'$1,600 below market', score:'7.1', cls:'warm' },
+  { title:'2020 BMW 330i xDrive — 48k mi',        meta:'Listed $28,900 · KBB $33,500', badge:'$4,600 below market', score:'9.4', cls:'hot' },
+  { title:'2019 Ford Mustang GT — 44k mi',        meta:'Listed $26,500 · KBB $29,200', badge:'$2,700 below market', score:'8.1', cls:'hot' },
+  { title:'2021 Toyota RAV4 XLE — 31k mi',        meta:'Listed $29,500 · KBB $30,100', badge:'$600 below market',   score:'5.9', cls:'warm' },
+  { title:'2018 Audi A4 Premium — 67k mi',        meta:'Listed $22,000 · KBB $25,400', badge:'$3,400 below market', score:'8.8', cls:'hot' },
+  { title:'2017 Chevrolet Camaro SS — 52k mi',    meta:'Listed $27,800 · KBB $30,000', badge:'$2,200 below market', score:'7.9', cls:'warm' },
+  { title:'2022 Hyundai Elantra N — 19k mi',      meta:'Listed $25,500 · KBB $27,800', badge:'$2,300 below market', score:'8.5', cls:'hot' },
+  { title:'2019 Mazda MX-5 Miata Club — 38k mi', meta:'Listed $24,200 · KBB $26,500', badge:'$2,300 below market', score:'8.6', cls:'hot' },
+  { title:'2020 Dodge Charger R/T — 61k mi',      meta:'Listed $27,000 · KBB $28,900', badge:'$1,900 below market', score:'7.2', cls:'warm' },
+  { title:'2018 Jeep Wrangler JL — 73k mi',       meta:'Listed $32,500 · KBB $34,800', badge:'$2,300 below market', score:'7.8', cls:'warm' },
+  { title:'2021 Kia Stinger GT2 — 29k mi',        meta:'Listed $31,000 · KBB $36,200', badge:'$5,200 below market', score:'9.6', cls:'hot' },
+  { title:'2016 Subaru BRZ Limited — 61k mi',     meta:'Listed $17,500 · KBB $19,800', badge:'$2,300 below market', score:'8.2', cls:'hot' },
+  { title:'2023 Honda CR-V Hybrid — 12k mi',      meta:'Listed $36,500 · KBB $35,900', badge:'Overpriced — skip',   score:'2.8', cls:'cold' },
+  { title:'2020 VW Jetta GLI — 44k mi',           meta:'Listed $20,800 · KBB $23,100', badge:'$2,300 below market', score:'8.4', cls:'hot' },
+  { title:'2019 Toyota GR86 — 33k mi',            meta:'Listed $22,500 · KBB $25,100', badge:'$2,600 below market', score:'8.9', cls:'hot' },
+  { title:'2021 Ford F-150 XLT — 47k mi',         meta:'Listed $34,500 · KBB $37,200', badge:'$2,700 below market', score:'7.6', cls:'warm' },
+  { title:'2018 Honda Accord Touring — 71k mi',   meta:'Listed $18,900 · KBB $21,400', badge:'$2,500 below market', score:'8.3', cls:'hot' },
+  { title:'2022 Subaru Outback XT — 22k mi',      meta:'Listed $33,000 · KBB $32,100', badge:'Overpriced — skip',   score:'2.4', cls:'cold' },
+  { title:'2020 Nissan 370Z Sport — 38k mi',      meta:'Listed $24,800 · KBB $27,500', badge:'$2,700 below market', score:'8.0', cls:'hot' },
+  { title:'2017 Mercedes C300 4MATIC — 82k mi',   meta:'Listed $21,000 · KBB $23,800', badge:'$2,800 below market', score:'7.5', cls:'warm' },
+  { title:'2021 Chevrolet Corvette — 9k mi',      meta:'Listed $59,900 · KBB $64,500', badge:'$4,600 below market', score:'9.2', cls:'hot' },
+  { title:'2019 Acura TLX A-Spec — 55k mi',       meta:'Listed $22,500 · KBB $24,800', badge:'$2,300 below market', score:'8.1', cls:'hot' },
+  { title:'2016 Ford Fiesta ST — 68k mi',         meta:'Listed $12,500 · KBB $13,200', badge:'$700 below market',   score:'5.4', cls:'warm' },
+];
+
+// Shuffle so feed feels random each visit
+const shuffled = allDeals.sort(() => Math.random() - 0.5);
+let dealIdx = 0;
+
+setInterval(() => {
+  const stack = document.getElementById('feedStack');
+  const d = shuffled[dealIdx % shuffled.length]; dealIdx++;
+  const platform = platforms[Math.floor(Math.random() * platforms.length)];
+  const card = document.createElement('div');
+  card.className = `feed-card ${d.cls} new-item`;
+  card.innerHTML = `
+    <div>
+      <div class="feed-card-source">${platform} · <span class="city-tag">${userCity}</span></div>
+      <div class="feed-card-title">${d.title}</div>
+      <div class="feed-card-meta">${d.meta}</div>
+      <span class="deal-badge">${d.badge}</span>
+    </div>
+    <div class="feed-card-score">
+      <div class="score-num">${d.score}</div>
+      <div class="score-label">deal score</div>
+    </div>`;
+  stack.insertBefore(card, stack.firstChild);
+  if (stack.children.length > 5) stack.removeChild(stack.lastChild);
+}, 6000);
+</script>
+</body>
+</html>
