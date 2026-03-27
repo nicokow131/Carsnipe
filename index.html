@@ -1008,8 +1008,15 @@ setInterval(() => {
 }, 5000);
 
 // Form submit
-function handleSubmit(e, id) {
+async function handleSubmit(e, id) {
   e.preventDefault();
+  const email = document.getElementById(id === 'hero' ? 'hero-email' : 'cta-email').value;
+  const zip = document.getElementById('hero-zip')?.value || '';
+  await fetch('/api/waitlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, zip })
+  });
   e.target.style.display = 'none';
   document.getElementById(id + '-success').style.display = 'block';
   count++; document.getElementById('counter').textContent = count;
